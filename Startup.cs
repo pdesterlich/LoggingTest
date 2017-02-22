@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Filter;
 using LoggingTest.Data;
 using LoggingTest.Models;
 using LoggingTest.Services;
@@ -64,7 +65,14 @@ namespace LoggingTest
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
-            loggerFactory.AddEntityFramework<ApplicationDbContext>(serviceProvider);
+            loggerFactory
+                .WithFilter(new FilterLoggerSettings
+                {
+                    { "Microsoft", LogLevel.None },
+                    { "System", LogLevel.None },
+                    { "LoggingTest", LogLevel.Information }
+                })
+                .AddEntityFramework<ApplicationDbContext>(serviceProvider);
 
             if (env.IsDevelopment())
             {
